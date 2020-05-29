@@ -1,0 +1,9 @@
+{
+    "name": "dotenv-layer",
+    "license": "ISC",
+    "repository": {},
+    "description": "Lambda layer providing the node package: dotenv",
+    "dependencies": {
+        "dotenv": "^8.2.0"
+    }
+}

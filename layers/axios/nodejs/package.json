@@ -1,0 +1,9 @@
+{
+    "name": "axios-layer",
+    "license": "ISC",
+    "repository": {},
+    "description": "Lambda layer providing the node package: axios",
+    "dependencies": {
+        "axios": "^0.19.2"
+    }
+}

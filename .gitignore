@@ -1,0 +1,13 @@
+# dependencies
+**/node_modules
+
+# production
+**/build
+**/_zipped
+*.zip
+*.lambda
+
+# misc
+**/.vscode
+desktop.ini
+.DS_Store
