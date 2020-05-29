@@ -5,7 +5,8 @@
 **/build
 **/_zipped
 *.zip
-*.lambda
+config.lambda
+.env
 
 # misc
 **/.vscode

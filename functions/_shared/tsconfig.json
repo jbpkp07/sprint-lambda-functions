@@ -1,0 +1,32 @@
+{
+    "compilerOptions": {
+        "target": "ES2017",
+        "allowJs": false,
+        "checkJs": false,
+        "allowSyntheticDefaultImports": false,
+        "forceConsistentCasingInFileNames": true,
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "esModuleInterop": false,
+        "resolveJsonModule": true,
+        "isolatedModules": false,
+        "jsx": "react",
+        "outDir": "",
+        "strict": true,
+        "noImplicitAny": true,
+        "strictNullChecks": true,
+        "strictFunctionTypes": true,
+        "strictBindCallApply": true,
+        "strictPropertyInitialization": true,
+        "noImplicitThis": true,
+        "alwaysStrict": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "noImplicitReturns": true,
+        "noFallthroughCasesInSwitch": true,
+        "removeComments": true
+    },
+    "include": [
+        "./*.ts"
+    ]
+}
