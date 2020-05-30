@@ -5,6 +5,8 @@ tput setab 0;
 
 printf '\n  Compiling TypeScript file(s) [/src, config.ts, deploy.ts] ... ';
 
+rm -r -f build;
+
 ../../node_modules/.bin/tsc;
 
 cd ./config

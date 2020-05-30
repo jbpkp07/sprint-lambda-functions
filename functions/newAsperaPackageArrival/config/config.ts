@@ -7,8 +7,7 @@ import { IGenericObj } from "../../_shared/IGenericObj";
 
 // Configure here =====================================================================================================
 const AWS_REGION: string = "us-west-2";
-const Description: string = "test for CLI deployment";
-const FunctionName: string = "jeremy-temp";
+const Description: string = "Handles the arrival of a new Aspera package";
 const Handler: string = "index.handler";
 const Layers: string[] = ["arn:aws:lambda:us-west-2:177953807159:layer:axios:3"];
 const MemorySize: string = "128";
@@ -31,7 +30,7 @@ export const lambdaConfig: IAWSLambdaConfig = {
         Environment: {
             Variables
         },
-        FunctionName,
+        FunctionName: lambdaFuncDir,
         Handler,
         Layers,
         MemorySize,
