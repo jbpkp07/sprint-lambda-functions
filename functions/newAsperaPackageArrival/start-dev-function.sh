@@ -16,7 +16,6 @@ tput setaf 7;
 
 printf "]\n\n";
 
-
 cd build;
 
 ../../../node_modules/.bin/nodemon index.js;
