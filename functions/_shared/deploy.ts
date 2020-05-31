@@ -4,7 +4,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { terminal } from "terminal-kit";
 
-import { IAWSLambdaConfig } from "./IAWSLambdaConfig";
+import { SLF } from "./types";
 
 
 const awsLambdaExecPath: string = path.normalize("../../node_modules/.bin/lambda");
@@ -17,7 +17,7 @@ try {
 
     const lambdaConfigPath: string = process.argv[2];
 
-    const { lambdaConfig }: { lambdaConfig: IAWSLambdaConfig } = require(lambdaConfigPath);
+    const { lambdaConfig }: { lambdaConfig: SLF.AWSLambdaDeployConfig } = require(lambdaConfigPath);
 
     // tslint:disable-next-line: strict-type-predicates
     if (lambdaConfig.config === undefined || lambdaConfig.dotenvFilePath === undefined) throw new Error("    deploy.js invalid config provided\n");

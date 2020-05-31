@@ -169,7 +169,7 @@
         "file-name-casing": [true, "camel-case", "pascal-case" ],
         "import-spacing": true,
         "increment-decrement": false,
-        "interface-name": true,
+        "interface-name": false,
         "interface-over-type-literal": true,
         "jsdoc-format": { "options": "check-multiline-start" },
         "match-default-export-name": true,
