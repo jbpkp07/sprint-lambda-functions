@@ -3,19 +3,25 @@ lambdaFuncName=$(basename "$(dirname "$0")");
 
 tput setab 0;
 
-printf '\n  Compiling TypeScript file(s) [/src, config.ts, deploy.ts] ... ';
+printf '\n  Compiling TypeScript file(s) [/src, deployConfig.ts, deploy.ts] ... ';
 
 rm -r -f build;
 
-../../node_modules/.bin/tsc;
+mkdir build;
 
-cd ./config
+cd src;
 
-../../../node_modules/.bin/tsc;
+ls -A | grep -v *.ts | xargs cp -f -t ../build;
 
-cd ../../_shared
+cd ..;
 
-../../node_modules/.bin/tsc;
+../../node_modules/.bin/tsc -b tsconfig.shared.json;
+
+../../node_modules/.bin/tsc -b tsconfig.json;
+
+../../node_modules/.bin/tsc -b ./config/tsconfig.json;
+
+../../node_modules/.bin/tsc -b ../_shared/deploy/tsconfig.json;
 
 tput setaf 2; 
 tput bold;
@@ -25,8 +31,10 @@ printf 'Done!\n\n';
 tput sgr0;
 tput setab 0;
 
-node deploy.js "../$lambdaFuncName/config/config.js";
+cd ../_shared/deploy
 
-rm -f deploy.js "../$lambdaFuncName/config/config.js";
+node deploy.js "../../$lambdaFuncName/config/deployConfig.js";
+
+rm -f deploy.js "../../$lambdaFuncName/config/deployConfig.js";
 
 read -n 1 -r -s -p $'  Press any key to exit ... \n\n';

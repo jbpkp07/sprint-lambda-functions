@@ -18,6 +18,16 @@ printf "]\n\n";
 
 rm -r -f build;
 
+mkdir build;
+
+cd src;
+
+ls -A | grep -v *.ts | xargs cp -f -t ../build;
+
+cd ..;
+
 sleep 3;
 
-../../node_modules/.bin/tsc -w;
+../../node_modules/.bin/tsc -b tsconfig.shared.json;
+
+../../node_modules/.bin/tsc -b tsconfig.json -w;

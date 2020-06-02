@@ -9,6 +9,14 @@ export namespace SLF {
 
     type Handler = (event: Event, context: Context) => Promise<Result>;
 
+    type LambdaFunctionResponse = (lambdaFuncName: string, statusCode?: number, error?: any) => Result;
+
+    type ConvertToURIComponent = (data: GenericObj) => string;
+
+    type GetAsperaBearerToken = (config: AsperaTokenRequestConfig) => Promise<AsperaToken>;
+
+    type DevDriver = (handler: Handler, config: DevDriverTestConfig) => void;
+
     interface GenericObj {
 
         [key: string]: any;
@@ -45,5 +53,33 @@ export namespace SLF {
         metadata: string;
         nodeId: string;
         timestamp: string;
+    }
+
+    interface AsperaToken {
+
+        access_token: string;
+        token_type: string;
+        expires_in: number;
+        scope: string;
+    }
+
+    interface AsperaTokenRequestConfig {
+
+        domain: "api.asperafiles.com" | "api.ibmaspera.com";
+        useNodeAccessKey: boolean;
+    }
+
+    interface AsperaTokenRequestData {
+
+        assertion: string;
+        grant_type: string;
+        scope: string;
+    }
+
+    interface DevDriverTestConfig {
+
+        body?: GenericObj;
+        headers?: GenericObj;
+        queryStringParameters?: GenericObj;
     }
 }

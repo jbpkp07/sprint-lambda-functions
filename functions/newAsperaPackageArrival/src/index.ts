@@ -1,37 +1,19 @@
 import * as AWS from "aws-sdk";
-// import Axios from "axios";
+import * as dotenv from "dotenv";
 
 import { SLF } from "../../_shared/types";
+
+dotenv.config({ path: "./.env" });
+
+const getAsperaBearerToken: SLF.GetAsperaBearerToken = require("./getAsperaBearerToken");
+const lambdaFunctionName: string = require("./lambdaFunctionName");
+const lambdaFunctionResponse: SLF.LambdaFunctionResponse = require("./lambdaFunctionResponse");
+
 
 
 // @ts-ignore
 const dynamoClient: AWS.DynamoDB.DocumentClient = new AWS.DynamoDB.DocumentClient();
 
-
-const lambdaFuncName: string = "newAsperaPackageArrival";
-
-const response: AWSLambda.APIGatewayProxyResult = {
-
-    body: JSON.stringify({
-        lambdaFuncName,
-        message: "Success"
-    }),
-    headers: {
-        "Content-Type": "application/json"
-    },
-    isBase64Encoded: false,
-    statusCode: 200
-};
-
-function updateResponseOnError(error: string, statusCode: number): void {
-
-    response.body = JSON.stringify({
-        lambdaFuncName,
-        message: `${error}`
-    });
-
-    response.statusCode = statusCode;
-}
 
 function validateEventBody(event: SLF.Event): SLF.AsperaEventBody {
 
@@ -40,79 +22,85 @@ function validateEventBody(event: SLF.Event): SLF.AsperaEventBody {
 
     let asperaEventBody: SLF.AsperaEventBody;
 
-    try { asperaEventBody = JSON.parse(event.body); }
-    catch (error) { throw new Error("Unable to parse Aspera event body"); }
+    try {
 
-    if ((asperaEventBody as any).dropboxId === undefined) throw new Error("Aspera Event body is missing key 'dropboxId'");
-    if ((asperaEventBody as any).fileId === undefined) throw new Error("Aspera Event body is missing key 'fileId'");
-    if ((asperaEventBody as any).inboxName === undefined) throw new Error("Aspera Event body is missing key 'inboxName'");
-    if ((asperaEventBody as any).metadata === undefined) throw new Error("Aspera Event body is missing key 'metadata'");
-    if ((asperaEventBody as any).nodeId === undefined) throw new Error("Aspera Event body is missing key 'nodeId'");
-    if ((asperaEventBody as any).timestamp === undefined) throw new Error("Aspera Event body is missing key 'timestamp'");
+        asperaEventBody = JSON.parse(event.body);
+    }
+    catch (error) {
+
+        throw new Error("Unable to parse Aspera event body");
+    }
+
+    if ((asperaEventBody as any).dropboxId === undefined) throw new Error("Aspera Event body is missing key { dropboxId }");
+    if ((asperaEventBody as any).fileId === undefined) throw new Error("Aspera Event body is missing key { fileId }");
+    if ((asperaEventBody as any).inboxName === undefined) throw new Error("Aspera Event body is missing key { inboxName }");
+    if ((asperaEventBody as any).metadata === undefined) throw new Error("Aspera Event body is missing key { metadata }");
+    if ((asperaEventBody as any).nodeId === undefined) throw new Error("Aspera Event body is missing key { nodeId }");
+    if ((asperaEventBody as any).timestamp === undefined) throw new Error("Aspera Event body is missing key { timestamp }");
 
     return asperaEventBody;
 }
 
+
 const handler: SLF.Handler = async (event: SLF.Event, _context: SLF.Context): Promise<SLF.Result> => {
 
-    return new Promise((resolve: Function): void => {
+    let s3BearerToken: SLF.AsperaToken;
+    let aocBearerToken: SLF.AsperaToken;
 
-        try {
+    try {
 
-            const asperaEvent: SLF.AsperaEventBody = validateEventBody(event);
+        const asperaEvent: SLF.AsperaEventBody = validateEventBody(event);
 
-            console.log(asperaEvent);
-        }
-        catch (error) {
+        console.log(asperaEvent);
+        console.log("\n\n");
 
-            (error.message !== undefined) ? console.log(error.message) : console.log(error);
+        console.time("API response time");
 
-            updateResponseOnError(error, 500);
-        }
+        const tokenRequests: Promise<SLF.AsperaToken>[] = [
 
-        resolve(response);
-    });
+            getAsperaBearerToken({ domain: "api.asperafiles.com", useNodeAccessKey: true }),
+            getAsperaBearerToken({ domain: "api.ibmaspera.com", useNodeAccessKey: false })
+        ];
+
+        [s3BearerToken, aocBearerToken] = await Promise.all(tokenRequests);
+
+        console.timeEnd("API response time");
+
+        console.log(s3BearerToken);
+
+        console.log("\n\n");
+
+        console.log(aocBearerToken);
+
+        console.log("\n\n");
+    }
+    catch (error) {
+
+        (error.message !== undefined) ? console.log(error.message) : console.log(error);
+
+        return lambdaFunctionResponse(lambdaFunctionName, 500, error);
+    }
+
+    return lambdaFunctionResponse(lambdaFunctionName, 200);
 };
-
-export = { handler };
-
-
-
-// const testEvent: AWSLambda.APIGatewayProxyEvent = {
-
-//     body: {} as SLF.AsperaEventBody,
-//     headers: {},
-//     httpMethod: "",
-//     isBase64Encoded: false,
-//     multiValueHeaders: {},
-//     multiValueQueryStringParameters: null,
-//     path: "",
-//     pathParameters: null,
-//     queryStringParameters: null,
-//     requestContext: {} as any,
-//     resource: "",
-//     stageVariables: null
-// };
-
 
 
 if (process.env.NODE_ENV !== "Production") {
 
-    const eventBody: any = {
+    const devDriver: SLF.DevDriver = require("./devDriver");
+
+    const testBody: SLF.AsperaEventBody = {
 
         dropboxId: "123",
         fileId: "456",
-        inboxName: "Spafx Drop Box",
-        metadata: "789",
-        nodeId: "abc",
+        inboxName: "Spafax Drop Box",
+        metadata: "some meta data",
+        nodeId: "789",
         timestamp: new Date().toLocaleString()
     };
-
-    handler({ body: JSON.stringify(eventBody) } as any, {} as any)
-
-        .then((res: AWSLambda.APIGatewayProxyResult): void => {
-
-            console.log(res);
-        });
+    
+    devDriver(handler, { body: testBody });
 }
 
+
+export = { handler };
