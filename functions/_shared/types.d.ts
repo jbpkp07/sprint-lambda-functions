@@ -9,13 +9,17 @@ export namespace SLF {
 
     type Handler = (event: Event, context: Context) => Promise<Result>;
 
-    type LambdaFunctionResponse = (lambdaFuncName: string, statusCode?: number, error?: any) => Result;
+    type LambdaFunctionResponse = (lambdaFuncName: string, statusCode: number, error?: any) => Result;
 
     type ConvertToURIComponent = (data: GenericObj) => string;
 
     type GetAsperaBearerToken = (config: AsperaTokenRequestConfig) => Promise<AsperaToken>;
 
     type DevDriver = (handler: Handler, config: DevDriverTestConfig) => void;
+
+    type GetValidatedEventBody = <T>(event: Event, type: EventBodyType) => T;
+
+    type EventBodyType = "newAsperaPackageArrival";
 
     interface GenericObj {
 

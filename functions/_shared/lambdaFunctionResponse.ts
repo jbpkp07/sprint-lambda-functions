@@ -1,6 +1,6 @@
 import { SLF } from "./types";
 
-const lambdaFunctionResponse: SLF.LambdaFunctionResponse = (lambdaFuncName: string, statusCode?: number, error?: any): SLF.Result => {
+const lambdaFunctionResponse: SLF.LambdaFunctionResponse = (lambdaFuncName: string, statusCode: number, error?: any): SLF.Result => {
 
     const response: SLF.Result = {
 
@@ -12,7 +12,7 @@ const lambdaFunctionResponse: SLF.LambdaFunctionResponse = (lambdaFuncName: stri
             "Content-Type": "application/json"
         },
         isBase64Encoded: false,
-        statusCode: (statusCode !== undefined) ? statusCode : 200
+        statusCode
     };
 
     return response;

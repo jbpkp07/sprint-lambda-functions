@@ -28,6 +28,7 @@
     },
     "include": [
         "../_shared/devDriver.ts",
+        "../_shared/getValidatedEventBody.ts",
         "../_shared/getAsperaBearerToken.ts",
         "../_shared/lambdaFunctionName.ts",
         "../_shared/lambdaFunctionResponse.ts"
