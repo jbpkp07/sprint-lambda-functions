@@ -20,14 +20,8 @@ rm -r -f build;
 
 mkdir build;
 
-cd src;
-
-ls -A | grep -v *.ts | xargs cp -f -t ../build;
-
-cd ..;
+cp -f ./env/.env ./build
 
 sleep 3;
 
-../../node_modules/.bin/tsc -b tsconfig.shared.json;
-
-../../node_modules/.bin/tsc -b tsconfig.json -w;
+../../node_modules/.bin/tsc -b tsconfig.json tsconfig.shared.json -w;

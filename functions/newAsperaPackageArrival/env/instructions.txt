@@ -9,9 +9,22 @@ Structure looks like this:
 
 Contents of .env file should follow this schema:
 
-AWS_KEY=???
-AWS_SECRET=???
+
+AWS variables:
+
+AWS_ACCESS_KEY_ID=???
+AWS_SECRET_ACCESS_KEY=???
+AWS_REGION=???
 ROLE=???
+
+
+Aspera variables:
+
+AUTHORIZATION=???
+ENCODED_HEADER=???
+ENCODED_PAYLOAD=???
+ENCODED_SIGNATURE=???
+NODE_ACCESS_KEY=???
 
 
 

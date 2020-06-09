@@ -1,7 +1,7 @@
 import { SLF } from "./types";
 
 
-const getValidatedEventBody: SLF.GetValidatedEventBody = (event: SLF.Event, type: SLF.EventBodyType): any => {
+const validateEventBody: SLF.ValidateEventBody<any> = (event: SLF.Event, type: SLF.EventBodyType): any => {
 
     if ((event as any).body === undefined) throw new Error("Event body is undefined");
     if (event.body === null) throw new Error("Event body is null");
@@ -23,13 +23,13 @@ const getValidatedEventBody: SLF.GetValidatedEventBody = (event: SLF.Event, type
 
         case "newAsperaPackageArrival":
 
-            const bodySchema: SLF.AsperaEventBody = { 
-                
-                dropboxId: "", 
-                fileId: "", 
-                inboxName: "", 
-                metadata: "", 
-                nodeId: "", 
+            const bodySchema: SLF.AsperaEventBody = {
+
+                dropboxId: "",
+                fileId: "",
+                inboxName: "",
+                metadata: "",
+                nodeId: "",
                 timestamp: ""
             };
 
@@ -38,6 +38,8 @@ const getValidatedEventBody: SLF.GetValidatedEventBody = (event: SLF.Event, type
             break;
 
         default:
+
+            throw new TypeError("validateEventBody() switch case not implemented for argument (type: SLF.EventBodyType)");
     }
 
     for (const key of keys) {
@@ -49,4 +51,4 @@ const getValidatedEventBody: SLF.GetValidatedEventBody = (event: SLF.Event, type
 };
 
 
-export = getValidatedEventBody;
+export = validateEventBody;

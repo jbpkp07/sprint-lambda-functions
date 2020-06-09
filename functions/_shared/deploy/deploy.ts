@@ -33,12 +33,14 @@ try {
 
     dotenv.config({ path: dotenvFilePath });
 
-    if (process.env.AWS_KEY === undefined) throw new Error(`    Missing [AWS_KEY=???] from file [${dotenvFile}]`);
-    if (process.env.AWS_SECRET === undefined) throw new Error(`    Missing [AWS_SECRET=???] from file [${dotenvFile}]`);
+    if (process.env.AWS_ACCESS_KEY_ID === undefined) throw new Error(`    Missing [AWS_ACCESS_KEY_ID=???] from file [${dotenvFile}]`);
+    if (process.env.AWS_SECRET_ACCESS_KEY === undefined) throw new Error(`    Missing [AWS_SECRET_ACCESS_KEY=???] from file [${dotenvFile}]`);
+    if (process.env.AWS_REGION === undefined) throw new Error(`    Missing [AWS_REGION=???] from file [${dotenvFile}]`);
     if (process.env.ROLE === undefined) throw new Error(`    Missing [ROLE=???] from file [${dotenvFile}]`);
 
-    deployConfig.config.AWS_KEY = process.env.AWS_KEY;
-    deployConfig.config.AWS_SECRET = process.env.AWS_SECRET;
+    deployConfig.config.AWS_KEY = process.env.AWS_ACCESS_KEY_ID;
+    deployConfig.config.AWS_SECRET = process.env.AWS_SECRET_ACCESS_KEY;
+    deployConfig.config.AWS_REGION = process.env.AWS_REGION;
     deployConfig.config.Role = process.env.ROLE;
 
     if (fs.existsSync(tempConfigFilePath)) fs.unlinkSync(tempConfigFilePath);

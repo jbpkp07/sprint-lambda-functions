@@ -4,9 +4,9 @@ import * as convertToURIComponent from "./convertToURIComponent";
 import { SLF } from "./types";
 
 
-const getAsperaBearerToken: SLF.GetAsperaBearerToken = async (config: SLF.AsperaTokenRequestConfig): Promise<SLF.AsperaToken> => {
+const getAsperaApiBearerToken: SLF.GetAsperaApiBearerToken = async (config: SLF.AsperaApiTokenRequestConfig): Promise<SLF.AsperaApiToken> => {
 
-    const data: SLF.AsperaTokenRequestData = {
+    const data: SLF.AsperaApiTokenRequestData = {
 
         assertion: `${process.env.ENCODED_HEADER}.${process.env.ENCODED_PAYLOAD}.${process.env.ENCODED_SIGNATURE}`,
         grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
@@ -26,9 +26,22 @@ const getAsperaBearerToken: SLF.GetAsperaBearerToken = async (config: SLF.Aspera
 
     try {
 
-        const s3BearerResponse: AxiosResponse<SLF.AsperaToken> = await Axios(requestConfig);
+        const response: AxiosResponse<SLF.AsperaApiToken> = await Axios(requestConfig);
 
-        return s3BearerResponse.data;
+        const asperaTokenSchema: SLF.AsperaApiToken = {
+
+            access_token: "",
+            expires_in: 0,
+            scope: "",
+            token_type: ""
+        };
+
+        for (const key of Object.keys(asperaTokenSchema)) {
+
+            if ((response.data as any)[key] === undefined) throw new Error(`Aspera API Bearer Token from ${config.domain} is missing key { ${key} }`);
+        }
+    
+        return response.data;
     }
     catch (error) {
 
@@ -37,4 +50,4 @@ const getAsperaBearerToken: SLF.GetAsperaBearerToken = async (config: SLF.Aspera
 };
 
 
-export = getAsperaBearerToken;
+export = getAsperaApiBearerToken;

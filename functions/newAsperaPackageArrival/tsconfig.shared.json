@@ -28,9 +28,13 @@
     },
     "include": [
         "../_shared/devDriver.ts",
-        "../_shared/getValidatedEventBody.ts",
-        "../_shared/getAsperaBearerToken.ts",
+        "../_shared/validateEventBody.ts",
+        "../_shared/getAsperaApiBearerToken.ts",
         "../_shared/lambdaFunctionName.ts",
-        "../_shared/lambdaFunctionResponse.ts"
+        "../_shared/lambdaFunctionResponse.ts",
+        "../_shared/getAsperaApiTransferByFileId.ts",
+        "../_shared/getAsperaApiPackageFiles.ts",
+        "../_shared/getAsperaApiPackage.ts",
+        "../_shared/putItemsInDynamoDB.ts"
     ]
 }

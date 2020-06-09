@@ -3,21 +3,15 @@ lambdaFuncName=$(basename "$(dirname "$0")");
 
 tput setab 0;
 
-printf '\n  Compiling TypeScript file(s) [/src, deployConfig.ts, deploy.ts] ... ';
+printf '\n  Compiling TypeScript file(s) [/src, /_shared, deployConfig.ts, deploy.ts] ... ';
 
 rm -r -f build;
 
 mkdir build;
 
-cd src;
+cp -f ./env/.env ./build
 
-ls -A | grep -v *.ts | xargs cp -f -t ../build;
-
-cd ..;
-
-../../node_modules/.bin/tsc -b tsconfig.shared.json;
-
-../../node_modules/.bin/tsc -b tsconfig.json;
+../../node_modules/.bin/tsc -b tsconfig.json tsconfig.shared.json;
 
 ../../node_modules/.bin/tsc -b ./config/tsconfig.json;
 
