@@ -51,7 +51,6 @@ const getAsperaApiPackageFiles: SLF.GetAsperaApiPackageFiles = async (token: SLF
             if (dirent.path === undefined) throw new Error("getAsperaApiPackageFiles() Aspera API did not return { .path } for dirent");
             if (dirent.type === undefined) throw new Error("getAsperaApiPackageFiles() Aspera API did not return { .type } for dirent");
             
-
             if (dirent.type === "folder") {
    
                 subDirPromises.push(getAsperaApiPackageFiles(token, dirent.id));
