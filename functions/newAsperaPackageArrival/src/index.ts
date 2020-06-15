@@ -38,6 +38,7 @@ const handler: SLF.Handler = async (event: SLF.Event, _context: SLF.Context): Pr
             const aspPackageConfig: SLF.AsperaApiPackageConfig = {
 
                 contentsFileId,
+                inboxName: eventBody.inboxName,
                 method: "byPackageId",
                 methodValue: aspPackageFiles.transferInfo.packageId
             };
