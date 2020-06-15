@@ -27,14 +27,18 @@
         "removeComments": true
     },
     "include": [
+        "../_shared/convertToURIComponent.ts",
         "../_shared/devDriver.ts",
-        "../_shared/validateEventBody.ts",
         "../_shared/getAsperaApiBearerToken.ts",
+        "../_shared/getAsperaApiPackage.ts",
+        "../_shared/getAsperaApiPackageAndToken.ts",
+        "../_shared/getAsperaApiPackageFiles.ts",
+        "../_shared/getAsperaApiPackageFilesAndToken.ts",
+        "../_shared/getAsperaApiTransfer.ts",
         "../_shared/lambdaFunctionName.ts",
         "../_shared/lambdaFunctionResponse.ts",
-        "../_shared/getAsperaApiTransferByFileId.ts",
-        "../_shared/getAsperaApiPackageFiles.ts",
-        "../_shared/getAsperaApiPackage.ts",
-        "../_shared/putItemsInDynamoDB.ts"
+        "../_shared/putItemsInDynamoDB.ts",
+        "../_shared/putNewAsperaFilesInDynamoDB.ts",
+        "../_shared/validateEventBody.ts"
     ]
 }

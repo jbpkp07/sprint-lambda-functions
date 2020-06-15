@@ -3,9 +3,13 @@ import * as AWS from "aws-sdk";
 import { SLF } from "./types";
 
 
-const putItemsInDynamoDB: SLF.PutItemsInDynamoDB = async (items: any[], tableName: SLF.DynamoDBTableNames, region: string): Promise<string> => {
+const putItemsInDynamoDB: SLF.PutItemsInDynamoDB = async (items: any[], tableName: SLF.DynamoDBTableName): Promise<string> => {
 
     try {
+
+        if (process.env.AWS_ACCESS_KEY_ID === undefined) throw new Error("putItemsInDynamoDB() AWS_ACCESS_KEY_ID environment variable not set");
+        if (process.env.AWS_SECRET_ACCESS_KEY === undefined) throw new Error("putItemsInDynamoDB() AWS_SECRET_ACCESS_KEY environment variable not set");
+        if (process.env.AWS_REGION === undefined) throw new Error("putItemsInDynamoDB() AWS_REGION environment variable not set");
 
         let schemaEntries: [string, any][];
 
@@ -39,7 +43,7 @@ const putItemsInDynamoDB: SLF.PutItemsInDynamoDB = async (items: any[], tableNam
                 throw new TypeError(`switch case not implemented for ${tableName}`);
         }
 
-        AWS.config.update({ region });
+        AWS.config.update({ region: process.env.AWS_REGION });
 
         const dynamoClient: AWS.DynamoDB.DocumentClient = new AWS.DynamoDB.DocumentClient();
 

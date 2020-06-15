@@ -3,7 +3,7 @@ import Axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import { SLF } from "./types";
 
 
-function getBasicFileInfo(fileInfo: SLF.AsperaApiFileInfo): SLF.AsperaApiFileInfo {
+function pruneFileInfo(fileInfo: SLF.AsperaApiFileInfo): SLF.AsperaApiFileInfo {
 
     const basicFileInfo: SLF.AsperaApiFileInfo = {
 
@@ -18,11 +18,13 @@ function getBasicFileInfo(fileInfo: SLF.AsperaApiFileInfo): SLF.AsperaApiFileInf
 }
 
 
-const getAsperaApiPackageFiles: SLF.GetAsperaApiPackageFiles = async (token: SLF.AsperaApiToken, fileId: string): Promise<SLF.AsperaApiFileInfo[]> => {
+const getAsperaApiPackageFiles: SLF.GetAsperaApiPackageFiles = async (token: SLF.AsperaApiToken, contentsFileId: string): Promise<SLF.AsperaApiFileInfo[]> => {
 
     const urlBase: string = "https://ats-aws-us-west-2.aspera.io/files";
 
-    const url: string = `${urlBase}/${fileId}/files`;
+    const url: string = `${urlBase}/${contentsFileId}/files`;
+
+    if (process.env.NODE_ACCESS_KEY === undefined) throw new Error("getAsperaApiPackageFiles() environment variable not set for NODE_ACCESS_KEY");
 
     const requestConfig: AxiosRequestConfig = {
 
@@ -59,7 +61,7 @@ const getAsperaApiPackageFiles: SLF.GetAsperaApiPackageFiles = async (token: SLF
 
                 if (dirent.size === undefined) throw new Error("getAsperaApiPackageFiles() Aspera API did not return { .size } for dirent");
 
-                files.push(getBasicFileInfo(dirent));
+                files.push(pruneFileInfo(dirent));
             }
         }
 
@@ -69,7 +71,7 @@ const getAsperaApiPackageFiles: SLF.GetAsperaApiPackageFiles = async (token: SLF
 
             for (const subDirFile of subDirFiles) {
 
-                files.push(getBasicFileInfo(subDirFile));
+                files.push(pruneFileInfo(subDirFile));
             }
         }
 

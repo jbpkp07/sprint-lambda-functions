@@ -1,32 +1,19 @@
 import * as dotenv from "dotenv";
-import * as path from "path";
 
 import { SLF } from "../../_shared/types";
 
 dotenv.config({ path: "./.env" });
 
+const getAsperaApiPackage: SLF.GetAsperaApiPackage = require("./getAsperaApiPackage");
+const getAsperaApiPackageAndToken: SLF.GetAsperaApiPackageAndToken = require("./getAsperaApiPackageAndToken");
+const getAsperaApiPackageFilesAndToken: SLF.GetAsperaApiPackageFilesAndToken = require("./getAsperaApiPackageFilesAndToken");
 const lambdaFunctionName: string = require("./lambdaFunctionName");
 const lambdaFunctionResponse: SLF.LambdaFunctionResponse = require("./lambdaFunctionResponse");
+const putNewAsperaFilesInDynamoDB: SLF.PutNewAsperaFilesInDynamoDB = require("./putNewAsperaFilesInDynamoDB");
 const validateEventBody: SLF.ValidateEventBody<SLF.AsperaEventBody> = require("./validateEventBody");
-const getAsperaApiBearerToken: SLF.GetAsperaApiBearerToken = require("./getAsperaApiBearerToken");
-const getAsperaApiTransferByFileId: SLF.GetAsperaApiTransferByFileId = require("./getAsperaApiTransferByFileId");
-const getAsperaApiPackageFiles: SLF.GetAsperaApiPackageFiles = require("./getAsperaApiPackageFiles");
-const getAsperaApiPackage: SLF.GetAsperaApiPackage = require("./getAsperaApiPackage");
-const putItemsInDynamoDB: SLF.PutItemsInDynamoDB = require("./putItemsInDynamoDB");
-
-
-type S3PromiseResults = [SLF.AsperaApiToken, SLF.AsperaApiTransferInfo, SLF.AsperaApiFileInfo[]];
-type aocPromiseResults = [SLF.AsperaApiToken, SLF.AsperaApiPackageInfo | null];
 
 
 const handler: SLF.Handler = async (event: SLF.Event, _context: SLF.Context): Promise<SLF.Result> => {
-
-    let s3BearerToken: SLF.AsperaApiToken;
-    let transferInfo: SLF.AsperaApiTransferInfo;
-    let filesInfo: SLF.AsperaApiFileInfo[];
-
-    let aocBearerToken: SLF.AsperaApiToken;
-    let aspPackage: SLF.AsperaApiPackageInfo | null;
 
     try {
 
@@ -34,105 +21,33 @@ const handler: SLF.Handler = async (event: SLF.Event, _context: SLF.Context): Pr
 
         console.log(eventBody);
 
-        const fileId: string = eventBody.fileId;
         const contentsFileId: string = `${parseInt(eventBody.fileId) + 1}`;
 
+        const apiCalls: [Promise<SLF.AsperaApiPackageAndToken>, Promise<SLF.AsperaApiPackageFilesAndToken>] = [
 
-        const s3Promise: Promise<S3PromiseResults> = (async (): Promise<S3PromiseResults> => {
+            getAsperaApiPackageAndToken(contentsFileId, eventBody.timestamp, eventBody.inboxName),
+            getAsperaApiPackageFilesAndToken(contentsFileId)
+        ];
 
-            s3BearerToken = await getAsperaApiBearerToken({ domain: "api.asperafiles.com", useNodeAccessKey: true });
+        const [aspPackage, aspPackageFiles]: [SLF.AsperaApiPackageAndToken, SLF.AsperaApiPackageFilesAndToken] = await Promise.all(apiCalls);
 
-            const s3Requests: [Promise<SLF.AsperaApiTransferInfo>, Promise<SLF.AsperaApiFileInfo[]>] = [
+        if (aspPackage.packageInfo === null) {
 
-                getAsperaApiTransferByFileId(s3BearerToken, contentsFileId),
-                getAsperaApiPackageFiles(s3BearerToken, contentsFileId)
-            ];
-
-            [transferInfo, filesInfo] = await Promise.all(s3Requests);
-
-            return [s3BearerToken, transferInfo, filesInfo];
-
-        })();
-
-
-        const aocPromise: Promise<aocPromiseResults> = (async (): Promise<aocPromiseResults> => {
+            console.log("index.handler() calling Aspera Packages API w/ second attempt (now using packageId)");
 
             const aspPackageConfig: SLF.AsperaApiPackageConfig = {
 
                 contentsFileId,
-                fileId,
-                method: "byTimestamp",
-                value: eventBody.timestamp
-            };
-
-            aocBearerToken = await getAsperaApiBearerToken({ domain: "api.ibmaspera.com", useNodeAccessKey: false });
-
-            aspPackage = await getAsperaApiPackage(aocBearerToken, aspPackageConfig);
-
-            return [aocBearerToken, aspPackage];
-
-        })();
-
-
-        [[s3BearerToken, transferInfo, filesInfo], [aocBearerToken, aspPackage]] = await Promise.all([s3Promise, aocPromise]);
-
-
-        if (transferInfo.filePaths.size !== filesInfo.length) throw new Error("index.handler() Aspera package file count mismatch");
-
-        if (aspPackage === null) {
-
-            console.log("Calling Aspera Packages API w/ second attempt (now using packageId)");
-
-            const aspPackageConfig: SLF.AsperaApiPackageConfig = {
-
-                contentsFileId,
-                fileId,
                 method: "byPackageId",
-                value: transferInfo.packageId
+                methodValue: aspPackageFiles.transferInfo.packageId
             };
 
-            aspPackage = await getAsperaApiPackage(aocBearerToken, aspPackageConfig);
+            aspPackage.packageInfo = await getAsperaApiPackage(aspPackage.aocBearerToken, aspPackageConfig);
 
-            if (aspPackage === null) throw new Error("index.handler() AsperaApiPackageInfo is still null after retry attempt");
+            if (aspPackage.packageInfo === null) throw new Error("index.handler() AsperaApiPackageInfo is still null after retry attempt");
         }
 
-        const fileDocuments: SLF.DbAsperaFileDocument[] = [];
-
-        for (const fileInfo of filesInfo) {
-
-            if (!transferInfo.filePaths.has(fileInfo.path)) throw new Error(`index.handler() Aspera package file path mismatch ${fileInfo.path}`);
-
-            const fileDocument: SLF.DbAsperaFileDocument = {
-
-                fileId: parseInt(fileInfo.id),
-                fileName: fileInfo.name,
-                fileNameExt: path.extname(fileInfo.name),
-                filePath: fileInfo.path,
-                fileSize: fileInfo.size,
-                inboxName: eventBody.inboxName,
-                packageFileId: aspPackage.fileId,
-                packageId: aspPackage.id,
-                packageName: aspPackage.name,
-                packageNote: aspPackage.note,
-                sendersEmail: aspPackage.senderEmail,
-                sendersName: aspPackage.senderName,
-                timestamp: eventBody.timestamp
-            };
-
-            fileDocuments.push(fileDocument);
-        }
-
-        if (process.env.AWS_REGION !== undefined) {
-
-            const status: string = await putItemsInDynamoDB(fileDocuments, "newAsperaFiles", process.env.AWS_REGION);
-
-            console.log(status);
-        }
-        else {
-
-            throw new Error("index.handler() AWS_REGION environment variable not set");
-        }
-
+        await putNewAsperaFilesInDynamoDB(aspPackage.packageInfo, aspPackageFiles.filesInfo);
     }
     catch (error) {
 
@@ -152,11 +67,11 @@ if (process.env.NODE_ENV !== "Production") {
     const testBody: any = {
 
         dropboxId: "5561",
-        fileId: "990",
+        fileId: "1062",
         inboxName: "Cloud_Drop",
         metadata: "[]",
         nodeId: "25222",
-        timestamp: "2020-06-09 18:12:41Z"
+        timestamp: "2020-06-15 11:33:18Z"
     };
 
     devDriver(handler, { body: testBody });

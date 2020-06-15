@@ -1,36 +1,47 @@
 
 export namespace SLF {
 
+    // aliases ----------------------------------------------------------------
     type Context = AWSLambda.Context;
+    type Event = AWSLambda.APIGatewayProxyEvent;
+    type Result = AWSLambda.APIGatewayProxyResult;
 
+
+    // enums ------------------------------------------------------------------
+    type DynamoDBTableName = "newAsperaFiles" | "";
+
+    type EventBodyType = "newAsperaPackageArrival" | "";
+    
+
+    // functions --------------------------------------------------------------
     type ConvertToURIComponent = (data: GenericObj) => string;
 
     type DevDriver = (handler: Handler, config: DevDriverTestConfig) => void;
-
-    type DynamoDBTableNames = "newAsperaFiles";
-
-    type Event = AWSLambda.APIGatewayProxyEvent;
-
-    type EventBodyType = "newAsperaPackageArrival";
 
     type GetAsperaApiBearerToken = (config: AsperaApiTokenRequestConfig) => Promise<AsperaApiToken>;
 
     type GetAsperaApiPackage = (token: AsperaApiToken, config: AsperaApiPackageConfig) => Promise<AsperaApiPackageInfo | null>;
 
-    type GetAsperaApiPackageFiles = (token: AsperaApiToken, fileId: string) => Promise<AsperaApiFileInfo[]>;
+    type GetAsperaApiPackageAndToken = (contentsFileId: string, timestamp: string, inboxName?: string) => Promise<AsperaApiPackageAndToken>;
 
-    type GetAsperaApiTransferByFileId = (token: AsperaApiToken, contentsFileId: string) => Promise<AsperaApiTransferInfo>;
+    type GetAsperaApiPackageFiles = (token: AsperaApiToken, contentsFileId: string) => Promise<AsperaApiFileInfo[]>;
+
+    type GetAsperaApiPackageFilesAndToken = (contentsFileId: string) => Promise<AsperaApiPackageFilesAndToken>;
+
+    type GetAsperaApiTransfer = (token: AsperaApiToken, config: AsperaApiTransferConfig) => Promise<AsperaApiTransferInfo>;
 
     type Handler = (event: Event, context: Context) => Promise<Result>;
 
     type LambdaFunctionResponse = (lambdaFuncName: string, statusCode: number, error?: any) => Result;
 
-    type PutItemsInDynamoDB = (items: any[], tableName: DynamoDBTableNames, region: string) => Promise<string>;
+    type PutItemsInDynamoDB = (items: any[], tableName: DynamoDBTableName) => Promise<string>;
 
-    type Result = AWSLambda.APIGatewayProxyResult;
+    type PutNewAsperaFilesInDynamoDB = (packageInfo: AsperaApiPackageInfo, filesInfo: AsperaApiFileInfo[]) => Promise<string>;
 
     type ValidateEventBody<T> = (event: Event, type: EventBodyType) => T;
 
+    
+    // interfaces -------------------------------------------------------------
     interface GenericObj {
 
         [key: string]: any;
@@ -45,20 +56,35 @@ export namespace SLF {
         type: string;
     }
 
+    interface AsperaApiPackageAndToken {
+
+        aocBearerToken: AsperaApiToken;
+        packageInfo: AsperaApiPackageInfo | null;
+    }
+
     interface AsperaApiPackageConfig {
 
-        contentsFileId: string;
-        fileId: string;
-        method: "byTimestamp" | "byPackageId";
-        value: string;
+        contentsFileId?: string;
+        inboxName?: string;
+        method: "byPackageId" | "byTimestamp";
+        methodValue: string;
+    }
+
+    interface AsperaApiPackageFilesAndToken {
+
+        filesInfo: AsperaApiFileInfo[];
+        s3BearerToken: AsperaApiToken;
+        transferInfo: AsperaApiTransferInfo;
     }
 
     interface AsperaApiPackageInfo {
 
+        completedAt: string;
         contentsFileId: string;
         failed: boolean;
         fileId: string;
         id: string;
+        inboxName: string;
         name: string;
         note: string;
         senderEmail: string;
@@ -84,6 +110,13 @@ export namespace SLF {
         assertion: string;
         grant_type: string;
         scope: string;
+    }
+
+    interface AsperaApiTransferConfig {
+
+        contentsFileId?: string;
+        method: "byTransferId" | "byContentsFileId";
+        methodValue: string;
     }
 
     interface AsperaApiTransferInfo {

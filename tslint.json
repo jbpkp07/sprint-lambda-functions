@@ -129,7 +129,7 @@
         "unnecessary-constructor": true,
         "use-default-type-parameter": true,
         "use-isnan": true,
-        "cyclomatic-complexity": true,
+        "cyclomatic-complexity": [true, 30],
         "eofline": true,
         "indent": [true, "spaces", 4],
         "invalid-void": true,
