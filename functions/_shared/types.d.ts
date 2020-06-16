@@ -11,7 +11,7 @@ export namespace SLF {
     type DynamoDBTableName = "DeliveryFiles" | "DeliveryMethods";
 
     type EventBodyType = "newAsperaPackageArrival" | "";
-    
+
 
     // functions --------------------------------------------------------------
     type ConvertToURIComponent = (data: GenericObj) => string;
@@ -40,7 +40,7 @@ export namespace SLF {
 
     type ValidateEventBody<T> = (event: Event, type: EventBodyType) => T;
 
-    
+
     // interfaces -------------------------------------------------------------
     interface GenericObj {
 
@@ -168,12 +168,11 @@ export namespace SLF {
 
     interface DeliveryFilesDocument {
 
-        _id: string;             // uuid
+        _id: string;  // uuid
         asperaFileId: string | null;
         asperaInbox: string | null;
         asperaPkgFileId: string | null;
         asperaPkgId: string | null;
-        assetId: string | null;  // uuid
         deliveryEmail: string | null;
         deliveryId: string | null;
         deliveryMessage: string | null;
@@ -184,7 +183,19 @@ export namespace SLF {
         fileName: string | null;
         filePath: string | null;
         fileSize: number | null;
+        h265AssetId: string | null;  // uuid
+        ingestAssetPaths: {
+            h264: string | null;
+            h265: string | null;
+            raw: string | null;
+        };
         isInbound: boolean;
         timestamp: string;
+    }
+
+    interface DeliveryMethodsDocument {
+
+        _id: string;  // uuid
+        method: string;
     }
 }

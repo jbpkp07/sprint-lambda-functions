@@ -5,6 +5,10 @@ import { v4 as uuid } from "uuid";
 import * as putItemsInDynamoDB from "./putItemsInDynamoDB";
 import { SLF } from "./types";
 
+type AttributeMap = AWS.DynamoDB.DocumentClient.AttributeMap;
+type DocumentClient = AWS.DynamoDB.DocumentClient;
+type ScanOutput = AWS.DynamoDB.DocumentClient.ScanOutput;
+
 
 const putNewAsperaFilesInDynamoDB: SLF.PutNewAsperaFilesInDynamoDB = async (packageInfo: SLF.AsperaApiPackageInfo, filesInfo: SLF.AsperaApiFileInfo[]): Promise<string> => {
 
@@ -16,15 +20,15 @@ const putNewAsperaFilesInDynamoDB: SLF.PutNewAsperaFilesInDynamoDB = async (pack
     const methodsTableName: SLF.DynamoDBTableName = "DeliveryMethods";
     const deliveryMethod: string = "Aspera";
 
-    const dynamoClient: AWS.DynamoDB.DocumentClient = new AWS.DynamoDB.DocumentClient();
+    const dynamoClient: DocumentClient = new AWS.DynamoDB.DocumentClient();
 
-    const methods: AWS.DynamoDB.DocumentClient.ScanOutput = await dynamoClient.scan({ TableName: methodsTableName, AttributesToGet: ["method"] }).promise();
+    const methods: ScanOutput = await dynamoClient.scan({ TableName: methodsTableName }).promise();
 
     if (methods.Items !== undefined) {
 
-        const methodValues: Set<string> = new Set(methods.Items.map((item: any): string => item.method));
+        const methodValues: Set<string> = new Set(methods.Items.map((item: AttributeMap): string => (item as SLF.DeliveryMethodsDocument).method));
 
-        if (!methodValues.has(deliveryMethod)) throw new Error(`putNewAsperaFilesInDynamoDB() deliveryMethod does not exist in table: ${methodsTableName}`);
+        if (!methodValues.has(deliveryMethod)) throw new Error(`putNewAsperaFilesInDynamoDB() deliveryMethod [${deliveryMethod}] does not exist in table: ${methodsTableName}`);
     }
     else {
 
@@ -42,7 +46,6 @@ const putNewAsperaFilesInDynamoDB: SLF.PutNewAsperaFilesInDynamoDB = async (pack
             asperaInbox: packageInfo.inboxName,
             asperaPkgFileId: packageInfo.fileId,
             asperaPkgId: packageInfo.id,
-            assetId: null,
             deliveryEmail: packageInfo.senderEmail,
             deliveryId: null,
             deliveryMessage: packageInfo.note.substr(0, 255),
@@ -53,6 +56,12 @@ const putNewAsperaFilesInDynamoDB: SLF.PutNewAsperaFilesInDynamoDB = async (pack
             fileName: fileInfo.name,
             filePath: fileInfo.path,
             fileSize: fileInfo.size,
+            h265AssetId: null,
+            ingestAssetPaths: {
+                h264: null,
+                h265: null,
+                raw: null
+            },
             isInbound: true,
             timestamp: packageInfo.completedAt            
         };

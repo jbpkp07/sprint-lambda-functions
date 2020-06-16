@@ -2,6 +2,10 @@ import * as AWS from "aws-sdk";
 
 import { SLF } from "./types";
 
+type BatchWriteItemOutput = AWS.DynamoDB.DocumentClient.BatchWriteItemOutput;
+type DocumentClient = AWS.DynamoDB.DocumentClient;
+type WriteRequests = AWS.DynamoDB.DocumentClient.WriteRequests;
+
 
 const putItemsInDynamoDB: SLF.PutItemsInDynamoDB = async (items: SLF.GenericObj[], tableName: SLF.DynamoDBTableName): Promise<string> => {
 
@@ -24,7 +28,6 @@ const putItemsInDynamoDB: SLF.PutItemsInDynamoDB = async (items: SLF.GenericObj[
                     asperaInbox: "",
                     asperaPkgFileId: "",
                     asperaPkgId: "",
-                    assetId: "",
                     deliveryEmail: "",
                     deliveryId: "",
                     deliveryMessage: "",
@@ -35,6 +38,12 @@ const putItemsInDynamoDB: SLF.PutItemsInDynamoDB = async (items: SLF.GenericObj[
                     fileName: "",
                     filePath: "",
                     fileSize: 0,
+                    h265AssetId: "",
+                    ingestAssetPaths: {
+                        h264: "",
+                        h265: "",
+                        raw: ""
+                    },
                     isInbound: true,
                     timestamp: ""
                 };
@@ -50,9 +59,9 @@ const putItemsInDynamoDB: SLF.PutItemsInDynamoDB = async (items: SLF.GenericObj[
 
         AWS.config.update({ region: process.env.AWS_REGION });
 
-        const dynamoClient: AWS.DynamoDB.DocumentClient = new AWS.DynamoDB.DocumentClient();
+        const dynamoClient: DocumentClient = new AWS.DynamoDB.DocumentClient();
 
-        const writeRequests: AWS.DynamoDB.DocumentClient.WriteRequests = [];
+        const writeRequests: WriteRequests = [];
 
         for (const Item of items) {
 
@@ -75,7 +84,7 @@ const putItemsInDynamoDB: SLF.PutItemsInDynamoDB = async (items: SLF.GenericObj[
             writeRequests.push({ PutRequest: { Item } });
         }
 
-        const response: AWS.DynamoDB.DocumentClient.BatchWriteItemOutput = await dynamoClient.batchWrite({ RequestItems: { [tableName]: writeRequests } }).promise();
+        const response: BatchWriteItemOutput = await dynamoClient.batchWrite({ RequestItems: { [tableName]: writeRequests } }).promise();
 
         if (response.UnprocessedItems !== undefined && Object.keys(response.UnprocessedItems).length !== 0) {
 
