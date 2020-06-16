@@ -38,52 +38,45 @@ const getAsperaApiTransfer: SLF.GetAsperaApiTransfer = async (token: SLF.AsperaA
         url
     };
 
-    try {
+    const response: AxiosResponse = await Axios(requestConfig);
 
-        const response: AxiosResponse = await Axios(requestConfig);
+    let transfer: any;
 
-        let transfer: any;
+    if (Array.isArray(response.data)) {
 
-        if (Array.isArray(response.data)) {
+        if (response.data.length !== 1) {
 
-            if (response.data.length !== 1) {
-
-                throw new Error("getAsperaApiTransfer() Aspera API did not return 1 transfer object");
-            }
-
-            transfer = response.data[0];
-        }
-        else {
-
-            transfer = response.data;
+            throw new Error("getAsperaApiTransfer() Aspera API did not return 1 transfer object");
         }
 
-        const transferInfo: SLF.AsperaApiTransferInfo = {
+        transfer = response.data[0];
+    }
+    else {
 
-            contentsFileId: transfer.start_spec.tags.aspera.node.file_id,
-            filePaths: new Set(transfer.files.map((file: any): string => file.path)/*
+        transfer = response.data;
+    }
+    
+    const transferInfo: SLF.AsperaApiTransferInfo = {
+
+        contentsFileId: transfer.start_spec.tags.aspera.node.file_id,
+        filePaths: new Set(transfer.files.map((file: any): string => file.path)/*
             */                       .sort((a: string, b: string): number => (a.toLowerCase() > b.toLowerCase()) ? 1 : -1)),
-            packageId: transfer.start_spec.tags.aspera.files.package_id
-        };
+        packageId: transfer.start_spec.tags.aspera.files.package_id
+    };
 
-        if (transferInfo.contentsFileId === undefined) throw new Error("getAsperaApiTransfer() Aspera API did not return { .start_spec.tags.aspera.node.file_id }");
-        if (transferInfo.contentsFileId !== config.methodValue && config.method === "byContentsFileId") {
+    if (transferInfo.contentsFileId === undefined) throw new Error("getAsperaApiTransfer() Aspera API did not return { .start_spec.tags.aspera.node.file_id }");
+    if (transferInfo.contentsFileId !== config.methodValue && config.method === "byContentsFileId") {
 
-            throw new Error(`getAsperaApiTransfer() Aspera API did not return correct file_id (${transferInfo.contentsFileId} vs ${config.methodValue})`);
-        }
-        if (config.contentsFileId !== undefined && transferInfo.contentsFileId !== config.contentsFileId) {
-
-            throw new Error(`getAsperaApiTransfer() Aspera API did not return correct file_id (${transferInfo.contentsFileId} vs ${config.contentsFileId})`);
-        }
-        if (transferInfo.filePaths.size === 0) throw new Error("getAsperaApiTransfer() Aspera API did not return any files { .files }");
-        if (transferInfo.packageId === undefined) throw new Error("getAsperaApiTransfer() Aspera API did not return { .start_spec.tags.aspera.files.package_id }");
-
-        return transferInfo;
+        throw new Error(`getAsperaApiTransfer() Aspera API did not return correct file_id (${transferInfo.contentsFileId} vs ${config.methodValue})`);
     }
-    catch (error) {
+    if (config.contentsFileId !== undefined && transferInfo.contentsFileId !== config.contentsFileId) {
 
-        throw new Error(error);
+        throw new Error(`getAsperaApiTransfer() Aspera API did not return correct file_id (${transferInfo.contentsFileId} vs ${config.contentsFileId})`);
     }
+    if (transferInfo.filePaths.size === 0) throw new Error("getAsperaApiTransfer() Aspera API did not return any files { .files }");
+    if (transferInfo.packageId === undefined) throw new Error("getAsperaApiTransfer() Aspera API did not return { .start_spec.tags.aspera.files.package_id }");
+
+    return transferInfo;
 };
 
 

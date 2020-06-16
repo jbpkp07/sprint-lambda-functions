@@ -8,7 +8,7 @@ export namespace SLF {
 
 
     // enums ------------------------------------------------------------------
-    type DynamoDBTableName = "newAsperaFiles" | "";
+    type DynamoDBTableName = "DeliveryFiles" | "DeliveryMethods";
 
     type EventBodyType = "newAsperaPackageArrival" | "";
     
@@ -32,9 +32,9 @@ export namespace SLF {
 
     type Handler = (event: Event, context: Context) => Promise<Result>;
 
-    type LambdaFunctionResponse = (lambdaFuncName: string, statusCode: number, error?: any) => Result;
+    type LambdaFunctionResponse = (statusCode: number, error?: any) => Result;
 
-    type PutItemsInDynamoDB = (items: any[], tableName: DynamoDBTableName) => Promise<string>;
+    type PutItemsInDynamoDB = (items: GenericObj[], tableName: DynamoDBTableName) => Promise<string>;
 
     type PutNewAsperaFilesInDynamoDB = (packageInfo: AsperaApiPackageInfo, filesInfo: AsperaApiFileInfo[]) => Promise<string>;
 
@@ -159,27 +159,32 @@ export namespace SLF {
         dotenvFilePath: string;
     }
 
-    interface DbAsperaFileDocument {
-
-        fileId: number;
-        fileName: string;
-        fileNameExt: string;
-        filePath: string;
-        fileSize: number;
-        inboxName: string;
-        packageFileId: string;
-        packageId: string;
-        packageName: string;
-        packageNote: string;
-        sendersEmail: string;
-        sendersName: string;
-        timestamp: string;
-    }
-
     interface DevDriverTestConfig {
 
         body?: GenericObj;
         headers?: GenericObj;
         queryStringParameters?: GenericObj;
+    }
+
+    interface DeliveryFilesDocument {
+
+        _id: string;             // uuid
+        asperaFileId: string | null;
+        asperaInbox: string | null;
+        asperaPkgFileId: string | null;
+        asperaPkgId: string | null;
+        assetId: string | null;  // uuid
+        deliveryEmail: string | null;
+        deliveryId: string | null;
+        deliveryMessage: string | null;
+        deliveryMethod: string;
+        deliveryName: string | null;
+        deliverySubject: string | null;
+        fileExt: string | null;
+        fileName: string | null;
+        filePath: string | null;
+        fileSize: number | null;
+        isInbound: boolean;
+        timestamp: string;
     }
 }

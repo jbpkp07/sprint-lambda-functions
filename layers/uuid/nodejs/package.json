@@ -1,0 +1,9 @@
+{
+    "name": "uuid-layer",
+    "license": "ISC",
+    "repository": {},
+    "description": "Lambda layer providing the node package: uuid",
+    "dependencies": {
+        "uuid": "^8.1.0"
+    }
+}

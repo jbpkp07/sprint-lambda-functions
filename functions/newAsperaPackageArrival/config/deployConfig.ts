@@ -6,7 +6,11 @@ import { SLF } from "../../_shared/types";
 // Configure here =====================================================================================================
 const Description: string = "Handles the arrival of a new Aspera package";
 const Handler: string = "index.handler";
-const Layers: string[] = ["arn:aws:lambda:us-west-2:177953807159:layer:axios:3", "arn:aws:lambda:us-west-2:177953807159:layer:dotenv:1"];
+const Layers: string[] = [
+    "arn:aws:lambda:us-west-2:177953807159:layer:axios:3",
+    "arn:aws:lambda:us-west-2:177953807159:layer:dotenv:1",
+    "arn:aws:lambda:us-west-2:177953807159:layer:uuid:1"
+];
 const MemorySize: string = "128";
 const Runtime: string = "nodejs12.x";
 const Timeout: string = "10";

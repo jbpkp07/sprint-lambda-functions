@@ -3,7 +3,7 @@ import * as AWS from "aws-sdk";
 import { SLF } from "./types";
 
 
-const putItemsInDynamoDB: SLF.PutItemsInDynamoDB = async (items: any[], tableName: SLF.DynamoDBTableName): Promise<string> => {
+const putItemsInDynamoDB: SLF.PutItemsInDynamoDB = async (items: SLF.GenericObj[], tableName: SLF.DynamoDBTableName): Promise<string> => {
 
     try {
 
@@ -15,22 +15,27 @@ const putItemsInDynamoDB: SLF.PutItemsInDynamoDB = async (items: any[], tableNam
 
         switch (tableName) {
 
-            case "newAsperaFiles":
+            case "DeliveryFiles":
 
-                const schema: SLF.DbAsperaFileDocument = {
+                const schema: SLF.DeliveryFilesDocument = {
 
-                    fileId: 0,
+                    _id: "",
+                    asperaFileId: "",
+                    asperaInbox: "",
+                    asperaPkgFileId: "",
+                    asperaPkgId: "",
+                    assetId: "",
+                    deliveryEmail: "",
+                    deliveryId: "",
+                    deliveryMessage: "",
+                    deliveryMethod: "",
+                    deliveryName: "",
+                    deliverySubject: "",
+                    fileExt: "",
                     fileName: "",
-                    fileNameExt: "",
                     filePath: "",
                     fileSize: 0,
-                    inboxName: "",
-                    packageFileId: "",
-                    packageId: "",
-                    packageName: "",
-                    packageNote: "",
-                    sendersEmail: "",
-                    sendersName: "",
+                    isInbound: true,
                     timestamp: ""
                 };
 
@@ -47,7 +52,7 @@ const putItemsInDynamoDB: SLF.PutItemsInDynamoDB = async (items: any[], tableNam
 
         const dynamoClient: AWS.DynamoDB.DocumentClient = new AWS.DynamoDB.DocumentClient();
 
-        const promises: Promise<any>[] = [];
+        const writeRequests: AWS.DynamoDB.DocumentClient.WriteRequests = [];
 
         for (const Item of items) {
 
@@ -61,22 +66,27 @@ const putItemsInDynamoDB: SLF.PutItemsInDynamoDB = async (items: any[], tableNam
                 const schemaKey: string = schemaEntry[0];
                 const schemaValue: any = schemaEntry[1];
 
-                if (Item[schemaKey] === undefined || typeof Item[schemaKey] !== typeof schemaValue) {
+                if (Item[schemaKey] === undefined || (Item[schemaKey] !== null && typeof Item[schemaKey] !== typeof schemaValue)) {
 
                     throw new Error("Invalid data being written to database");
                 }
             }
 
-            promises.push(dynamoClient.put({ Item, TableName: tableName }).promise());
+            writeRequests.push({ PutRequest: { Item } });
         }
 
-        await Promise.all(promises);
+        const response: AWS.DynamoDB.DocumentClient.BatchWriteItemOutput = await dynamoClient.batchWrite({ RequestItems: { [tableName]: writeRequests } }).promise();
+
+        if (response.UnprocessedItems !== undefined && Object.keys(response.UnprocessedItems).length !== 0) {
+
+            throw new Error(`DynamoDB notified that there were unprocessed items ${JSON.stringify(response.UnprocessedItems)}`);
+        }
 
         return `${items.length} items written to DynamoDB table [${tableName}]`;
     }
     catch (error) {
 
-        throw new Error(`putItemsInDynamoDB() failed:  ${error}`);
+        throw new Error(`putItemsInDynamoDB() table: ${tableName} ${error}`);
     }
 };
 

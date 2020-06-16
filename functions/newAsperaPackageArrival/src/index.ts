@@ -7,7 +7,6 @@ dotenv.config({ path: "./.env" });
 const getAsperaApiPackage: SLF.GetAsperaApiPackage = require("./getAsperaApiPackage");
 const getAsperaApiPackageAndToken: SLF.GetAsperaApiPackageAndToken = require("./getAsperaApiPackageAndToken");
 const getAsperaApiPackageFilesAndToken: SLF.GetAsperaApiPackageFilesAndToken = require("./getAsperaApiPackageFilesAndToken");
-const lambdaFunctionName: string = require("./lambdaFunctionName");
 const lambdaFunctionResponse: SLF.LambdaFunctionResponse = require("./lambdaFunctionResponse");
 const putNewAsperaFilesInDynamoDB: SLF.PutNewAsperaFilesInDynamoDB = require("./putNewAsperaFilesInDynamoDB");
 const validateEventBody: SLF.ValidateEventBody<SLF.AsperaEventBody> = require("./validateEventBody");
@@ -54,10 +53,10 @@ const handler: SLF.Handler = async (event: SLF.Event, _context: SLF.Context): Pr
 
         (error.message !== undefined) ? console.log(error.message) : console.log(error);
 
-        return lambdaFunctionResponse(lambdaFunctionName, 500, error);
+        return lambdaFunctionResponse(500, error);
     }
 
-    return lambdaFunctionResponse(lambdaFunctionName, 200);
+    return lambdaFunctionResponse(200);
 };
 
 
@@ -68,11 +67,11 @@ if (process.env.NODE_ENV !== "Production") {
     const testBody: any = {
 
         dropboxId: "5561",
-        fileId: "1062",
+        fileId: "1119",
         inboxName: "Cloud_Drop",
         metadata: "[]",
         nodeId: "25222",
-        timestamp: "2020-06-15 11:33:18Z"
+        timestamp: "2020-06-16 11:04:56Z"
     };
 
     devDriver(handler, { body: testBody });

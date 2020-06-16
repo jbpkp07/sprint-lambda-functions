@@ -1,11 +1,13 @@
+import * as lambdaFunctionName from "./lambdaFunctionName";
 import { SLF } from "./types";
 
-const lambdaFunctionResponse: SLF.LambdaFunctionResponse = (lambdaFuncName: string, statusCode: number, error?: any): SLF.Result => {
+
+const lambdaFunctionResponse: SLF.LambdaFunctionResponse = (statusCode: number, error?: any): SLF.Result => {
 
     const response: SLF.Result = {
 
         body: JSON.stringify({
-            lambdaFuncName,
+            lambdaFunctionName,
             message: (error !== undefined) ? `${error}` : "Success"
         }),
         headers: {
@@ -17,5 +19,6 @@ const lambdaFunctionResponse: SLF.LambdaFunctionResponse = (lambdaFuncName: stri
 
     return response;
 };
+
 
 export = lambdaFunctionResponse;
