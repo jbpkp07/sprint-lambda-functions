@@ -16,8 +16,8 @@ const putNewAsperaFilesInDynamoDB: SLF.PutNewAsperaFilesInDynamoDB = async (pack
     if (process.env.AWS_SECRET_ACCESS_KEY === undefined) throw new Error("putNewAsperaFilesInDynamoDB() AWS_SECRET_ACCESS_KEY environment variable not set");
     if (process.env.AWS_REGION === undefined) throw new Error("putNewAsperaFilesInDynamoDB() AWS_REGION environment variable not set");
 
-    const filesTableName: SLF.DynamoDBTableName = "DeliveryFiles";
-    const methodsTableName: SLF.DynamoDBTableName = "DeliveryMethods";
+    const filesTableName: SLF.TableNameDynamoDB = "DeliveryFiles";
+    const methodsTableName: SLF.TableNameDynamoDB = "DeliveryMethods";
     const deliveryMethod: string = "Aspera";
 
     const dynamoClient: DocumentClient = new AWS.DynamoDB.DocumentClient();

@@ -8,7 +8,7 @@ export namespace SLF {
 
 
     // enums ------------------------------------------------------------------
-    type DynamoDBTableName = "DeliveryFiles" | "DeliveryMethods";
+    type TableNameDynamoDB = "DeliveryFiles" | "DeliveryMethods";
 
     type EventBodyType = "newAsperaPackageArrival" | "";
 
@@ -34,7 +34,7 @@ export namespace SLF {
 
     type LambdaFunctionResponse = (statusCode: number, error?: any) => Result;
 
-    type PutItemsInDynamoDB = (items: GenericObj[], tableName: DynamoDBTableName) => Promise<string>;
+    type PutItemsInDynamoDB = (items: GenericObj[], tableName: TableNameDynamoDB) => Promise<string>;
 
     type PutNewAsperaFilesInDynamoDB = (packageInfo: AsperaApiPackageInfo, filesInfo: AsperaApiFileInfo[]) => Promise<string>;
 

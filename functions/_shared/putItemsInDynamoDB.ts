@@ -7,7 +7,7 @@ type DocumentClient = AWS.DynamoDB.DocumentClient;
 type WriteRequests = AWS.DynamoDB.DocumentClient.WriteRequests;
 
 
-const putItemsInDynamoDB: SLF.PutItemsInDynamoDB = async (items: SLF.GenericObj[], tableName: SLF.DynamoDBTableName): Promise<string> => {
+const putItemsInDynamoDB: SLF.PutItemsInDynamoDB = async (items: SLF.GenericObj[], tableName: SLF.TableNameDynamoDB): Promise<string> => {
 
     try {
 
